@@ -265,8 +265,8 @@ public class Game implements Broadcaster {
 			msg("%s has %d %s", p.getName(), playerDiceCount, Guess.numberToHumanString(number, true));
 			count += playerDiceCount;
 		}
-		msg("TOTAL: " + count);
 		msg("GUESS: " + lastGuess.quantity);
+		msg("TOTAL: " + count);
 		return count >= lastGuess.quantity;
 	}
 	
