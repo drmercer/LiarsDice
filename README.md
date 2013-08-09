@@ -1,7 +1,7 @@
 LiarsDice
 =========
 
-An open-source command prompt liar's dice game.
+An open-source command prompt liar's dice game. Download the JAR [here](export/program.jar)!
 
 Running the game
 ----------------
