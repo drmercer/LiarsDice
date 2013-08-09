@@ -67,7 +67,12 @@ public class Client {
 			return;
 		}
 		
-		player = new ClientPlayer(numOfDice, vars.get("--name"));;
+		String name = vars.get("--name");
+		if (name == null) {
+			player = new ClientPlayer(numOfDice);
+		} else {
+			player = new ClientPlayer(numOfDice, name);;
+		}
 		out.println(player.name);
 		out.flush();
 		
