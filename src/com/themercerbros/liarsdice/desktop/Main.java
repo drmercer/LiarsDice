@@ -57,31 +57,22 @@ public class Main {
 					printUsage();
 					return;
 				}
-				if (arg.equalsIgnoreCase("--port")) {
+				if (arg.equalsIgnoreCase("--port") && !join) {
 					if (args.length <= i + 1) {
 						throw new IllegalArgumentException();
 					}
-					try {
-						port = Integer.parseInt(args[i + 1]);
-					} catch (NumberFormatException e) {
-						throw new IllegalArgumentException(e);
-					}
+					port = Integer.parseInt(args[i + 1]);
 					i += 1;
 
 				} else if (arg.equals("--join")) {
 					join = true;
 					if (args.length > i + 2) {
-						address = args[i + 1];
-						try {
+						if (args[i + 1].matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")
+								&& args[i + 2].matches("\\d+")) {
+							address = args[i + 1];
 							port = Integer.parseInt(args[i + 2]);
-						} catch (NumberFormatException e) {
-							throw new IllegalArgumentException(e);
+							i += 2;
 						}
-						i += 2;
-					} else {
-						address = io.ask("Join what IP address?");
-						port = io.askForInt("   and what port?", 1, Integer.MAX_VALUE);
-						break;
 					}
 				} else if (arg.equals("--dice-per-player")) {
 					if (args.length <= i + 1) {

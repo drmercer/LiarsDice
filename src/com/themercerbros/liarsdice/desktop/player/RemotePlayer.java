@@ -104,4 +104,18 @@ public class RemotePlayer extends Player {
 		out.flush();
 	}
 
+	public void disconnect() {
+		try {
+			in.close();
+		} catch (IOException e) {
+			// Do nothing
+		}
+		out.close();
+		try {
+			conn.close();
+		} catch (IOException e) {
+			// Do nothing
+		}
+	}
+
 }

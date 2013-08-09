@@ -34,25 +34,45 @@ public class Client {
 	private final IO io = new IO();
 	private final Pattern msgPattern = Pattern.compile("\"(.*)\"");
 	
-	private final Socket conn;
-	private final BufferedReader in;
-	private final PrintWriter out;
+	private Socket conn;
+	private BufferedReader in;
+	private PrintWriter out;
 	private ClientPlayer player;
 	
 	public Client(String address, int port, HashMap<String, String> vars) {
-		try {
-			io.say("Connecting to " + address + " on port " + port + "...");
-			conn = new Socket(address, port);
-			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			out = new PrintWriter(conn.getOutputStream());
-			io.say("Connected.");
-		} catch (UnknownHostException e) {
-			io.say("Error. Unknown host " + address);
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			io.say("Connection error.");
-			throw new RuntimeException(e);
+		if (address == null) {
+			address = io.ask("Connect to what IP address?");
+			port = io.askForInt("  and what port?", 1, Integer.MAX_VALUE);
 		}
+		
+		boolean retry = false;
+		do {
+			retry = false;
+			try {
+				io.say("Connecting to " + address + " on port " + port + "...");
+				conn = new Socket(address, port);
+				in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+				out = new PrintWriter(conn.getOutputStream());
+				io.say("Connected.");
+
+			} catch (UnknownHostException e) {
+				io.say("Error. Unknown host " + address);
+				throw new RuntimeException(e);
+
+			} catch (IOException e) {
+				if (e.getMessage().contains("timed out")) {
+					retry = io.askBoolean("Connection attempt timed out. Try again?");
+					if (!retry) {
+						System.exit(-1);
+					}
+				} else {
+					io.say("Connection error.");
+					e.printStackTrace();
+					System.exit(-1);
+					throw new RuntimeException(e);
+				}
+			}
+		} while (retry);
 		
 		String hostPlayerName;
 		int numOfDice;

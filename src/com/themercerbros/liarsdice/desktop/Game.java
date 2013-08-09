@@ -110,15 +110,17 @@ public class Game implements Broadcaster {
 		if (args.contains(ARG_THINK_OUT_LOUD)) {
 			ComputerPlayer.thinkOutLoud = true;
 		}
-		int numOfComputers = 0;
+		int numOfComputers = -1;
 		if (argVals.containsKey(ARG_NUM_OF_COMPUTERS)) {
 			try {
 				numOfComputers = Integer.parseInt(argVals.get(ARG_NUM_OF_COMPUTERS));
 			} catch (NumberFormatException e) {
 				// Do nothing
 			}
-		} else {
-			numOfComputers = io.askForInt("How many computer players do you want?", (players.size() == 1) ? 1 : 0, 1024);
+		}
+		int minNumOfComputers = players.size() == 1 ? 1 : 0;
+		if (numOfComputers < minNumOfComputers){
+			numOfComputers = io.askForInt("How many computer players do you want?", minNumOfComputers, 1024);
 		}
 		for (int i = 0; i < numOfComputers; i++) {
 			addComputerPlayer(dicePerPlayer);
@@ -246,6 +248,12 @@ public class Game implements Broadcaster {
 				Player winner = players.get(0);
 				msg(winner.getName() + " won!");
 				break game;
+			}
+		}
+		
+		for (Player p : listeningPlayers) {
+			if (p instanceof RemotePlayer) {
+				((RemotePlayer) p).disconnect();
 			}
 		}
 	}
