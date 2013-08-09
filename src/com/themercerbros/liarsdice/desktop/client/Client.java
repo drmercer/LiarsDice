@@ -40,13 +40,13 @@ public class Client {
 	private ClientPlayer player;
 	
 	public Client(String address, int port, HashMap<String, String> vars) {
-		if (address == null) {
-			address = io.ask("Connect to what IP address?");
-			port = io.askForInt("  and what port?", 1, Integer.MAX_VALUE);
-		}
-		
 		boolean retry = false;
 		do {
+			if (address == null) {
+				address = io.ask("Connect to what IP address?");
+				port = io.askForInt("  and what port?", 1, Integer.MAX_VALUE);
+			}
+			
 			retry = false;
 			try {
 				io.say("Connecting to " + address + " on port " + port + "...");
@@ -57,19 +57,20 @@ public class Client {
 
 			} catch (UnknownHostException e) {
 				io.say("Error. Unknown host " + address);
-				throw new RuntimeException(e);
+				io.say(e.getMessage());
+				System.exit(-1);
 
 			} catch (IOException e) {
+				String msg;
 				if (e.getMessage().contains("timed out")) {
-					retry = io.askBoolean("Connection attempt timed out. Try again?");
-					if (!retry) {
-						System.exit(-1);
-					}
+					msg = "Connection attempt timed out. Try again?";
 				} else {
-					io.say("Connection error.");
-					e.printStackTrace();
+					msg = "Connection error: \"" + e.getMessage() + "\". Try again?";
+					address = null;
+				}
+				retry = io.askBoolean(msg);
+				if (!retry) {
 					System.exit(-1);
-					throw new RuntimeException(e);
 				}
 			}
 		} while (retry);
