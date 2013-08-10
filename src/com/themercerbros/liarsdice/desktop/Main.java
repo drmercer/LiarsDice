@@ -24,7 +24,8 @@ import com.themercerbros.liarsdice.desktop.io.IO;
 
 public class Main {
 	private static final String USAGE = 
-			"USAGE: [[ --port <port-number> ] [ --dice-per-player <num-of-dice> ] | --join <ip-address> <port-number> ]";
+			"USAGE: [[ --port <port-number> ] [ --dice-per-player <num-of-dice> ] | --join <ip-address> <port-number> ]\n" +
+			"For more help, see the README at https://github.com/drmercer/LiarsDice";
 
 	/**
 	 * @param args
@@ -45,19 +46,26 @@ public class Main {
 		int port = 4444;
 		int numOfDice = 0;
 		
+		HistoryHelper.INSTANCE.printHistory();
 
 		ArrayList<String> argsList = new ArrayList<String>();
 		HashMap<String, String> argVals = new HashMap<String, String>();
 		
 		try {
 			for (int i = 0; i < args.length; i++) {
-				// --publish switch
 				String arg = args[i];
-				if (arg.equalsIgnoreCase("--help")) {
+				if (arg.equalsIgnoreCase("--clear-history")) {
+					if (args.length != 1) {
+						throw new IllegalArgumentException();
+					}
+					if (io.askBoolean("Are you sure you want to clear your history?")) {
+						HistoryHelper.clearHistory();
+					}
+					return;
+				} else if (arg.equalsIgnoreCase("--help")) {
 					printUsage();
 					return;
-				}
-				if (arg.equalsIgnoreCase("--port") && !join) {
+				} else if (arg.equalsIgnoreCase("--port") && !join) {
 					if (args.length <= i + 1) {
 						throw new IllegalArgumentException();
 					}

@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import com.themercerbros.liarsdice.desktop.Call;
 import com.themercerbros.liarsdice.desktop.Guess;
+import com.themercerbros.liarsdice.desktop.HistoryHelper;
 import com.themercerbros.liarsdice.desktop.StatsMode;
 
 public class HumanPlayer extends Player {
@@ -82,6 +83,26 @@ public class HumanPlayer extends Player {
 	@Override
 	public void tell(String message) {
 		io.say(message);
+	}
+
+	@Override
+	public void onWin() {
+		HistoryHelper.INSTANCE.recordWin();
+	}
+
+	@Override
+	public void onLose() {
+		HistoryHelper.INSTANCE.recordLoss();
+	}
+
+	@Override
+	public void onSuccessfulOffense() {
+		HistoryHelper.INSTANCE.onSuccessfulOffense();
+	}
+
+	@Override
+	public void onSuccessfulDefense() {
+		HistoryHelper.INSTANCE.onSuccessfulDefense();
 	}
 
 }

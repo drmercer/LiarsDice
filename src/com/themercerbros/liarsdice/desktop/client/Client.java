@@ -27,12 +27,14 @@ import java.util.regex.Pattern;
 
 import com.themercerbros.liarsdice.desktop.Call;
 import com.themercerbros.liarsdice.desktop.Guess;
+import com.themercerbros.liarsdice.desktop.HistoryHelper;
 import com.themercerbros.liarsdice.desktop.io.IO;
 import com.themercerbros.liarsdice.desktop.player.RemotePlayer;
 
 public class Client {
 	private final IO io = new IO();
 	private final Pattern msgPattern = Pattern.compile("\"(.*)\"");
+	private final Pattern eventPattern = Pattern.compile(RemotePlayer.EVENT_REGEX);
 	
 	private Socket conn;
 	private BufferedReader in;
@@ -128,6 +130,10 @@ public class Client {
 				io.say("Connection down. Exiting.");
 				break;
 			}
+			
+			if (input == null) {
+				break;
+			}
 
 			if (input.matches(RemotePlayer.MESSAGE_REGEX)) {
 				Matcher m = msgPattern.matcher(input);
@@ -172,6 +178,19 @@ public class Client {
 				} catch (Call e) {
 					out.println(RemotePlayer.CALL);
 					out.flush();
+				}
+			} else if (input.matches(RemotePlayer.EVENT_REGEX)) {
+				Matcher m = eventPattern.matcher(input);
+				m.find();
+				String event = m.group(1);
+				if (event.equals(RemotePlayer.EVENT_WIN)) {
+					HistoryHelper.INSTANCE.recordWin();
+				} else if (event.equals(RemotePlayer.EVENT_LOSS)) {
+					HistoryHelper.INSTANCE.recordLoss();
+				} else if (event.equals(RemotePlayer.EVENT_OFFENSE)) {
+					HistoryHelper.INSTANCE.onSuccessfulOffense();
+				} else if (event.equals(RemotePlayer.EVENT_DEFENSE)) {
+					HistoryHelper.INSTANCE.onSuccessfulDefense();
 				}
 			}
 		}

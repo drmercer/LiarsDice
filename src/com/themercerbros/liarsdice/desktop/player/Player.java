@@ -81,5 +81,33 @@ public abstract class Player {
 	public void tell(String message) {
 		// Does nothing by default
 	}
+	
+	/**
+	 * Does nothing by default
+	 */
+	public void onWin() {
+		// Does nothing by default
+	}
+
+	/**
+	 * Does nothing by default
+	 */
+	public void onLose() {
+		// Does nothing by default
+	}
+	
+	/**
+	 * Does nothing by default
+	 */
+	public void onSuccessfulOffense() {
+		// Does nothing by default
+	}
+	
+	/**
+	 * Does nothing by default
+	 */
+	public void onSuccessfulDefense() {
+		// Does nothing by default
+	}
 
 }

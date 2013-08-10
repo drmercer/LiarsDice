@@ -28,6 +28,7 @@ import com.themercerbros.liarsdice.desktop.Call;
 import com.themercerbros.liarsdice.desktop.Guess;
 
 public class RemotePlayer extends Player {
+
 	public static class Quit extends Exception {}
 
 	public static final String TAKE_TURN_PREFIX = "take_turn ";
@@ -38,6 +39,12 @@ public class RemotePlayer extends Player {
 	public static final String ROLLED = "rolled ";
 	public static final String TAKE_TURN_FIRST_REGEX = TAKE_TURN_PREFIX + "(\\d+)";
 	public static final String TAKE_TURN_REGEX = TAKE_TURN_PREFIX + Guess.REGEX + " (\\d+)";
+	public static final String EVENT_REGEX = "event (\\w+)";
+	public static final String EVENT_FMT = "event %s";
+	public static final String EVENT_WIN = "win";
+	public static final String EVENT_LOSS = "loss";
+	public static final String EVENT_OFFENSE = "offense";
+	public static final String EVENT_DEFENSE = "defense";
 
 	private final Socket conn;
 	private final BufferedReader in;
@@ -65,7 +72,31 @@ public class RemotePlayer extends Player {
 		super.rollDice(); // TODO: left off here
 		String string = Arrays.toString(getDiceRolls());
 		out.println(ROLLED + string);
-//		tell("You rolled " + string);
+		out.flush();
+	}
+
+	@Override
+	public void onWin() {
+		out.println(String.format(EVENT_FMT, EVENT_WIN));
+		out.flush();
+	}
+
+	@Override
+	public void onLose() {
+		out.println(String.format(EVENT_FMT, EVENT_LOSS));
+		out.flush();
+	}
+
+	@Override
+	public void onSuccessfulOffense() {
+		out.println(String.format(EVENT_FMT, EVENT_OFFENSE));
+		out.flush();
+	}
+
+	@Override
+	public void onSuccessfulDefense() {
+		out.println(String.format(EVENT_FMT, EVENT_DEFENSE));
+		out.flush();
 	}
 
 	@Override

@@ -209,18 +209,22 @@ public class Game implements Broadcaster {
 					msg(currentPlayer.getName() + " called out " + lastPlayer.getName());
 					boolean wasRight = checkGuess(lastGuess);
 					if (wasRight) {
+						lastPlayer.onSuccessfulDefense();
 						msg(lastPlayer.getName() + " guessed correctly!");
 						msg(currentPlayer.getName() + " loses one die.");
 						currentPlayer.loseOne();
 						if (currentPlayer.isOut()) {
+							currentPlayer.onLose();
 							msg(currentPlayer.getName() + " is out!");
 							players.remove(currentPlayer);
 						}
 					} else {
+						currentPlayer.onSuccessfulOffense();
 						msg(lastPlayer.getName() + " did not guess correctly!");
 						msg(lastPlayer.getName() + " loses one die.");
 						lastPlayer.loseOne();
 						if (lastPlayer.isOut()) {
+							lastPlayer.onLose();
 							msg(lastPlayer.getName() + " is out!");
 							players.remove(lastPlayer);
 						}
@@ -247,6 +251,7 @@ public class Game implements Broadcaster {
 			if (players.size() == 1) {
 				// player won!
 				Player winner = players.get(0);
+				winner.onWin();
 				msg(winner.getName() + " won!");
 				break game;
 			}
