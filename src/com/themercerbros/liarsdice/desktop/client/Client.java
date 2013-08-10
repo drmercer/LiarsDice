@@ -61,6 +61,24 @@ public class Client {
 				System.exit(-1);
 
 			} catch (IOException e) {
+				if (conn != null) {
+					try {
+						conn.close();
+					} catch (IOException e1) {
+						// Do nothing
+					}
+				}
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e1) {
+						// Do nothing
+					}
+				}
+				if (out != null) {
+					out.close();
+				}
+				
 				String msg;
 				if (e.getMessage().contains("timed out")) {
 					msg = "Connection attempt timed out. Try again?";
@@ -71,24 +89,6 @@ public class Client {
 				retry = io.askBoolean(msg);
 				if (!retry) {
 					System.exit(-1);
-				}
-			} finally {
-				if (conn != null) {
-					try {
-						conn.close();
-					} catch (IOException e) {
-						// Do nothing
-					}
-				}
-				if (in != null) {
-					try {
-						in.close();
-					} catch (IOException e) {
-						// Do nothing
-					}
-				}
-				if (out != null) {
-					out.close();
 				}
 			}
 		} while (retry);
