@@ -133,6 +133,7 @@ public class Main {
 				}
 			} while (true);
 		}
+		HistoryHelper.INSTANCE.writeToFile();
 	}
 
 	private static void printUsage() {

@@ -39,7 +39,7 @@ public class Game implements Broadcaster {
 	private static final String ARG_NAME = "--name";
 
 	public static final int NUM_OF_SIDES = 6;
-	private static final int MAX_DICE_PER_PLAYER = 100;
+	private static final int MAX_DICE_PER_PLAYER = 99;
 
 	private final IO io = new IO();
 
@@ -47,6 +47,7 @@ public class Game implements Broadcaster {
 	private final ArrayList<Player> players;
 
 	private int diceInPlay = 0;
+	private int lengthOfLongestName = 0;
 
 	private ServerSocket server;
 	private final ArrayList<Player> listeningPlayers;
@@ -131,6 +132,12 @@ public class Game implements Broadcaster {
 		
 		// Randomize players
 		Collections.shuffle(players, new SecureRandom());
+		
+		// Get length of longest name
+		for (Player p : players) {
+			lengthOfLongestName = Math.max(lengthOfLongestName,
+					p.getName().length());
+		}
 	}
 	
 	private void addComputerPlayer(int numOfDice) {
@@ -155,8 +162,8 @@ public class Game implements Broadcaster {
 			for (Player p : players) {
 				int diceCount = p.getDiceRolls().length;
 				int percent = diceCount * 100 / diceInPlay;
-				msg("%s has %d dice. (%d%%)\t%s", p.getName(), 
-						diceCount, percent, getPercentageBar(diceCount * 100 / dicePerPlayer));
+				msg("%-" + lengthOfLongestName + "s has %d dice. (%d%%)\t%s", p.getName(), 
+						diceCount, percent, getBar(diceCount, dicePerPlayer));
 			}
 
 			for (Player p : players) {
@@ -230,7 +237,6 @@ public class Game implements Broadcaster {
 						}
 					}
 					diceInPlay--; 
-					playerIndex += 1; // Increment playerIndex
 					break round;
 
 				} catch (Quit e) {
@@ -272,6 +278,18 @@ public class Game implements Broadcaster {
 			} else {
 				sb.append(" ");
 			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
+	private static String getBar(int filled, int total) {
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < filled; i++) {
+			sb.append("=");
+		}
+		for (int i = filled; i < total; i++) {
+			sb.append(" ");
 		}
 		sb.append("]");
 		return sb.toString();

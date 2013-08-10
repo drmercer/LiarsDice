@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 public class IO {
 	private final PrintStream o = System.out;
-	private final Scanner i = new Scanner(System.in);
+	private static final Scanner i = new Scanner(System.in);
 	private int indent = 0;
 	
 	private String indent(String msg) {
@@ -51,12 +51,6 @@ public class IO {
 	public String ask(String prompt) {
 		say(prompt);
 		return listen();
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		i.close();
-		super.finalize();
 	}
 
 	public int askForInt(String prompt) {
