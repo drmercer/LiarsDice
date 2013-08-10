@@ -83,7 +83,7 @@ public class ComputerPlayer extends Player {
 		} else { // Continuing round
 			double lastGuessProb = StatsMode.computeProbability(last, numOfDiceInPlay, diceRolls);
 			double r1 = rand.nextDouble() * .5 - .4;
-			if (last.number > 1 && (lastGuessProb + r1) < alpha) {
+			if ((rand.nextDouble() > .75 || last.quantity > 1) && (lastGuessProb + r1) < alpha) {
 				think("Calling, because (%.3f%+.3f) < %.3f", lastGuessProb, r1, alpha);
 				throw new Call();
 			}

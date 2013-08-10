@@ -72,6 +72,24 @@ public class Client {
 				if (!retry) {
 					System.exit(-1);
 				}
+			} finally {
+				if (conn != null) {
+					try {
+						conn.close();
+					} catch (IOException e) {
+						// Do nothing
+					}
+				}
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						// Do nothing
+					}
+				}
+				if (out != null) {
+					out.close();
+				}
 			}
 		} while (retry);
 		

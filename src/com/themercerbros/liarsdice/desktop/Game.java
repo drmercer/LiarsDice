@@ -155,7 +155,8 @@ public class Game implements Broadcaster {
 			for (Player p : players) {
 				int diceCount = p.getDiceRolls().length;
 				int percent = diceCount * 100 / diceInPlay;
-				msg("%s has %d dice. (%d%%)\t%s", p.getName(), diceCount, percent, getPercentageBar(percent));
+				msg("%s has %d dice. (%d%%)\t%s", p.getName(), 
+						diceCount, percent, getPercentageBar(diceCount * 100 / dicePerPlayer));
 			}
 
 			for (Player p : players) {
@@ -261,7 +262,7 @@ public class Game implements Broadcaster {
 	private static String getPercentageBar(int percent) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 5; i <= 100; i += 5) {
-			if (i < percent) {
+			if (i <= percent) {
 				sb.append("=");
 			} else {
 				sb.append(" ");
