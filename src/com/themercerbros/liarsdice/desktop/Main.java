@@ -15,6 +15,7 @@
  */
 package com.themercerbros.liarsdice.desktop;
 
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,6 +27,7 @@ public class Main {
 	private static final String USAGE = 
 			"USAGE: [[ --port <port-number> ] [ --dice-per-player <num-of-dice> ] | --join <ip-address> <port-number> ]\n" +
 			"For more help, see the README at https://github.com/drmercer/LiarsDice";
+	public static boolean allowNoise = true;
 
 	/**
 	 * @param args
@@ -140,4 +142,19 @@ public class Main {
 		System.out.print(USAGE);
 	}
 
+	public static void beep(int numOfTimes) {
+		if (allowNoise) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < numOfTimes; i++) {
+				sb.append('\007');
+			}
+			System.out.print(sb.toString());
+		}
+	}
+
+	public static void buzz() {
+		if (allowNoise) {
+			Toolkit.getDefaultToolkit().beep();
+		}
+	}
 }

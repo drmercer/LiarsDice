@@ -20,6 +20,7 @@ import java.util.Arrays;
 import com.themercerbros.liarsdice.desktop.Call;
 import com.themercerbros.liarsdice.desktop.Guess;
 import com.themercerbros.liarsdice.desktop.HistoryHelper;
+import com.themercerbros.liarsdice.desktop.Main;
 import com.themercerbros.liarsdice.desktop.StatsMode;
 
 public class HumanPlayer extends Player {
@@ -43,6 +44,8 @@ public class HumanPlayer extends Player {
 
 	@Override
 	public Guess takeTurn(Guess last, int numOfDiceInPlay) throws Call {
+		Main.beep(2); // beep twice
+
 		String prompt;
 		if (last == null) {
 			io.say("You're first, " + name + "!");
@@ -51,27 +54,56 @@ public class HumanPlayer extends Player {
 			io.say("You're up, " + name + "!");
 			prompt = "What is your guess? (Type \"call\" to call out the previous guess.)";
 		}
+
 		do {
 			String input = io.ask(prompt);
+
 			if (input.equalsIgnoreCase("stats")) {
+				// Stats mode
 				new StatsMode(last, getDiceRolls(), numOfDiceInPlay).run();
 				continue;
-			} else if (input.equalsIgnoreCase("hide thoughts")) {
-				ComputerPlayer.thinkOutLoud = false;
-				io.say("Will not show CPU thoughts.");
-				continue;
-			} else if (input.equalsIgnoreCase("show thoughts")) {
+
+			} else if (input.equalsIgnoreCase("thoughts on")) {
+				// Enable thoughts
 				ComputerPlayer.thinkOutLoud = true;
 				io.say("Will show CPU thoughts.");
 				continue;
+
+			} else if (input.equalsIgnoreCase("thoughts off")) {
+				// Disable thoughts
+				ComputerPlayer.thinkOutLoud = false;
+				io.say("Will not show CPU thoughts.");
+				continue;
+
+			} else if (input.equalsIgnoreCase("sound on")) {
+				// Enable sound
+				Main.allowNoise = true;
+				io.say("Will play sounds.");
+				continue;
+
+			} else if (input.equalsIgnoreCase("sound off")) {
+				// Disable sound
+				Main.allowNoise = false;
+				io.say("Will not play sounds.");
+				continue;
+
+			} else if (input.equalsIgnoreCase("history")) {
+				// Disable sound
+				HistoryHelper.INSTANCE.printHistory();
+				continue;
+
 			} else if (last != null && input.equalsIgnoreCase("call")) {
+				// Call other player
 				throw new Call();
 			}
+
 			try {
 				return Guess.fromHumanInput(input);
 			} catch (IllegalArgumentException e) {
+				Main.buzz();
 				io.say("I can't understand that. Try again.");
 			}
+
 		} while (true);
 	}
 
