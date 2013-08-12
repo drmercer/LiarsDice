@@ -215,26 +215,24 @@ public class Game implements Broadcaster {
 
 					msg(currentPlayer.getName() + " called out " + lastPlayer.getName());
 					boolean wasRight = checkGuess(lastGuess);
+					Player loser;
 					if (wasRight) {
 						lastPlayer.onSuccessfulDefense();
 						msg(lastPlayer.getName() + " guessed correctly!");
-						msg(currentPlayer.getName() + " loses one die.");
-						currentPlayer.loseOne();
-						if (currentPlayer.isOut()) {
-							currentPlayer.onLose();
-							msg(currentPlayer.getName() + " is out!");
-							players.remove(currentPlayer);
-						}
+						loser = currentPlayer;
 					} else {
 						currentPlayer.onSuccessfulOffense();
 						msg(lastPlayer.getName() + " did not guess correctly!");
-						msg(lastPlayer.getName() + " loses one die.");
-						lastPlayer.loseOne();
-						if (lastPlayer.isOut()) {
-							lastPlayer.onLose();
-							msg(lastPlayer.getName() + " is out!");
-							players.remove(lastPlayer);
-						}
+						loser = lastPlayer;
+					}
+					msg(loser.getName() + " loses one die.");
+					loser.loseOne();
+					if (loser.isOut()) {
+						loser.onLose();
+						msg(loser.getName() + " is out!");
+						players.remove(loser);
+					} else {
+						playerIndex++;
 					}
 					diceInPlay--; 
 					break round;
