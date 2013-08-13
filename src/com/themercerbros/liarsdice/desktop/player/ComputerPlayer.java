@@ -27,6 +27,7 @@ import com.themercerbros.liarsdice.desktop.io.IO;
 
 public class ComputerPlayer extends Player {
 	public static boolean thinkOutLoud = false;
+	public static boolean thinkingDelay = true;
 
 	private static final Random rand = new SecureRandom();
 	private double alpha = rand.nextDouble() * 0.5 + 0.1; // range [.1, .6]
@@ -34,6 +35,7 @@ public class ComputerPlayer extends Player {
 
 	private final String name;
 	private boolean justCalled = false;
+
 	
 	public static void main(String[] args) {
 		IO io = new IO();
@@ -89,10 +91,12 @@ public class ComputerPlayer extends Player {
 
 	@Override
 	public Guess takeTurn(Guess last, int numOfDiceInPlay) throws Call {
-		try {
-			Thread.sleep(3500);
-		} catch (InterruptedException e) {
-			// Do nothing.
+		if (thinkingDelay){
+			try {
+				Thread.sleep(3500);
+			} catch (InterruptedException e) {
+				// Do nothing.
+			}
 		}
 		
 		justCalled = false;

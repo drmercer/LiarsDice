@@ -75,6 +75,18 @@ public class HumanPlayer extends Player {
 				io.say("Will not show CPU thoughts.");
 				continue;
 
+			} else if (input.equalsIgnoreCase("cpuwait on")) {
+				// Enable thoughts
+				ComputerPlayer.thinkingDelay = true;
+				io.say("CPU will take extra time guessing.");
+				continue;
+
+			} else if (input.equalsIgnoreCase("cpuwait off")) {
+				// Disable thoughts
+				ComputerPlayer.thinkingDelay = false;
+				io.say("CPU will not take extra time guessing.");
+				continue;
+
 			} else if (input.equalsIgnoreCase("sound on")) {
 				// Enable sound
 				Main.allowNoise = true;
