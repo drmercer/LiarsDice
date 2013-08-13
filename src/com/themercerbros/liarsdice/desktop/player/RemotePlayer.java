@@ -69,7 +69,7 @@ public class RemotePlayer extends Player {
 
 	@Override
 	public void rollDice() {
-		super.rollDice(); // TODO: left off here
+		super.rollDice();
 		String string = Arrays.toString(getDiceRolls());
 		out.println(ROLLED + string);
 		out.flush();

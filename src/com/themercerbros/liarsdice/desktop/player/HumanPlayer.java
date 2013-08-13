@@ -56,7 +56,7 @@ public class HumanPlayer extends Player {
 		}
 
 		do {
-			String input = io.ask(prompt);
+			String input = io.ask(prompt).trim();
 
 			if (input.equalsIgnoreCase("stats")) {
 				// Stats mode

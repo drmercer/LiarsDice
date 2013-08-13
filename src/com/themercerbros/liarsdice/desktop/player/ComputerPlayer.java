@@ -103,14 +103,15 @@ public class ComputerPlayer extends Player {
 
 		int[] diceRolls = getDiceRolls();
 		if (last == null) { // First guess in round
-			double x = (Game.NUM_OF_SIDES + (diceRolls.length * 3 * (1 - gutsiness)));
+
+			double weight = (10 / diceRolls.length) * (1 - gutsiness);
+			double x = (Game.NUM_OF_SIDES + (diceRolls.length * weight));
 			double[] thresholds = new double[Game.NUM_OF_SIDES];
 			double lastThreshold = 0.0;
 			for (int i = 0; i < thresholds.length; i++) {
-				lastThreshold += (1 + StatsMode.getCountOfNumber(diceRolls, i + 1) * (3 * (1 - gutsiness))) / x;
+				lastThreshold += (1 + StatsMode.getCountOfNumber(diceRolls, i + 1) * weight) / x;
 				thresholds[i] = lastThreshold;
 			}
-			io.say(Arrays.toString(thresholds));
 			
 			double r = rand.nextDouble();
 			int number = 1;
