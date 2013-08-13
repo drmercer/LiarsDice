@@ -21,6 +21,7 @@ import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -301,14 +302,15 @@ public class Game implements Broadcaster {
 		for (Player p : players) {
 			dice = p.getDiceRolls();
 			final int diceLength = dice.length;
-			int playerDiceCount = 0;
+			int pCount = 0;
 			for (int i = 0; i < diceLength; i++) {
 				if (dice[i] == number) {
-					playerDiceCount++;
+					pCount++;
 				}
 			}
-			msg("%s has %d %s", p.getName(), playerDiceCount, Guess.numberToHumanString(number, true));
-			count += playerDiceCount;
+			String numberString = Guess.numberToHumanString(number, pCount != 1);
+			msg("%s has %d %s %s", p.getName(), pCount, numberString, Arrays.toString(p.getDiceRolls()));
+			count += pCount;
 		}
 		msg("GUESS: " + lastGuess.quantity);
 		msg("TOTAL: " + count);
