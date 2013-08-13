@@ -29,10 +29,11 @@ public class ComputerPlayer extends Player {
 	public static boolean thinkOutLoud = false;
 
 	private static final Random rand = new SecureRandom();
-	private final double alpha = rand.nextDouble() * 0.5 + 0.1; // range [.1, .6]
+	private double alpha = rand.nextDouble() * 0.5 + 0.1; // range [.1, .6]
 	private final double gutsiness = rand.nextDouble();
 
 	private final String name;
+	private boolean justCalled = false;
 	
 	public static void main(String[] args) {
 		IO io = new IO();
@@ -41,14 +42,13 @@ public class ComputerPlayer extends Player {
 		cp.rollDice();
 		io.say(Arrays.toString(cp.getDiceRolls()));
 		
-		do {
-			Guess g = Guess.fromHumanInput(io.ask("please guess >> "));
+		for (int i = 0; i < 100; i++) {
 			try {
-				io.say(cp.takeTurn(g, 10).toHumanString());
+				io.say(cp.takeTurn(null, 10).toHumanString());
 			} catch (Call e) {
-				io.say("Call");
+				io.say("Call!");
 			}
-		} while (true);
+		}
 	}
 	
 	public ComputerPlayer(int numOfDice) {
@@ -56,6 +56,29 @@ public class ComputerPlayer extends Player {
 		name = getNewName(rand);
 	}
 	
+	@Override
+	public void loseOne() {
+		super.loseOne();
+		onLoseADie();
+	}
+	
+	private void onLoseADie() {
+		// Learning algorithm!
+		if (justCalled) {
+			// If losing a dice because I called out a correct guess
+			alpha += Math.max(.1, (1 - alpha) * .3); // Increase alpha
+			if (alpha > 1) {
+				alpha = 1;
+			}
+		} else {
+			// If losing a dice because I made a bad guess
+			alpha -= Math.max(.1, (alpha) * .3); // Decrease alpha
+			if (alpha < 0) {
+				alpha = 0;
+			}
+		}
+	}
+
 	private static String getNewName(Random r) {
 		char a = (char) ('A' + r.nextInt(26));
 		char b = (char) ('A' + r.nextInt(26));
@@ -66,21 +89,25 @@ public class ComputerPlayer extends Player {
 
 	@Override
 	public Guess takeTurn(Guess last, int numOfDiceInPlay) throws Call {
-//		try {
-//			Thread.sleep(3500);
-//		} catch (InterruptedException e) {
-//			// Do nothing.
-//		}
+		try {
+			Thread.sleep(3500);
+		} catch (InterruptedException e) {
+			// Do nothing.
+		}
+		
+		justCalled = false;
 
 		int[] diceRolls = getDiceRolls();
 		if (last == null) { // First guess in round
-			double x = 1 / (double) (Game.NUM_OF_SIDES + diceRolls.length);
+			double x = (Game.NUM_OF_SIDES + (diceRolls.length * 3 * (1 - gutsiness)));
 			double[] thresholds = new double[Game.NUM_OF_SIDES];
 			double lastThreshold = 0.0;
 			for (int i = 0; i < thresholds.length; i++) {
-				lastThreshold += (1 + StatsMode.getCountOfNumber(diceRolls, i + 1)) * x;
+				lastThreshold += (1 + StatsMode.getCountOfNumber(diceRolls, i + 1) * (3 * (1 - gutsiness))) / x;
 				thresholds[i] = lastThreshold;
 			}
+			io.say(Arrays.toString(thresholds));
+			
 			double r = rand.nextDouble();
 			int number = 1;
 			for (int i = 0; i < thresholds.length; i++) {
@@ -90,9 +117,9 @@ public class ComputerPlayer extends Player {
 				}
 			}
 			int quantity = Math.max(1, StatsMode.getCountOfNumber(diceRolls, number));
-			if (gutsiness > rand.nextDouble()) {
+			if (gutsiness > rand.nextDouble() + .4) {
 				quantity++;
-				if (gutsiness > rand.nextDouble() + .6) {
+				if (gutsiness > rand.nextDouble() + .7) {
 					quantity++;
 				}
 			}
@@ -104,11 +131,13 @@ public class ComputerPlayer extends Player {
 			double r1 = rand.nextDouble() * .2 - .1; // range [-.1, .1]
 			if ((rand.nextDouble() > .75 || last.quantity > 1) && (lastGuessProb + r1) < alpha) {
 				think("Calling, because (%.3f%+.3f) < %.3f", lastGuessProb, r1, alpha);
+				justCalled = true;
 				throw new Call();
 			}
 
 			if (last.quantity >= numOfDiceInPlay) {
 				think("Calling, because they guessed all the dice");
+				justCalled = true;
 				throw new Call();
 			}
 
@@ -120,7 +149,11 @@ public class ComputerPlayer extends Player {
 				quantity = last.quantity + claimedCount;
 
 			} else if (last.number < Game.NUM_OF_SIDES) {
-				number = StatsMode.getNumberWithHighestCount(diceRolls, last.number + 1);
+				int min = last.number + 1;
+				number = StatsMode.getNumberWithHighestCount(diceRolls, min);
+				if (number == 0) {
+					number = min + rand.nextInt(Game.NUM_OF_SIDES + 1 - min);
+				}
 				quantity = Math.max(StatsMode.getCountOfNumber(diceRolls, number), last.quantity);
 
 			} else { // Nowhere to go but up

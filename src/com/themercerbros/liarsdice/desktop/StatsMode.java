@@ -19,7 +19,7 @@ import com.themercerbros.liarsdice.desktop.io.IO;
 
 public class StatsMode {
 	private final IO io = new IO();
-	
+
 	private final int diceCount;
 	private final int[] dice;
 	private final Guess last;
@@ -33,14 +33,15 @@ public class StatsMode {
 	public void run() {
 		io.say("==========STATS=MODE=========");
 		io.setIndent(3);
-		io.say("There are %d dice in play, and you have %d of them.", diceCount, dice.length);
+		io.say("There are %d dice in play, and you have %d of them.",
+				diceCount, dice.length);
 		if (last != null) {
-			io.say("The last guess was %s, which has a %.4f probability of being true.", 
+			io.say("The last guess was %s, which has a %.4f probability of being true.",
 					last.toHumanString(), computeProbability(last, diceCount, dice));
 		}
 		io.say("What guess do you want to compute the probability of?");
 		io.say("(Type \"exit\" to exit stats mode.)");
-		
+
 		while (true) {
 			String input = io.listen().toLowerCase();
 			if (input.equals("exit")) {
@@ -54,10 +55,10 @@ public class StatsMode {
 				} else if (prob == 0.0f) {
 					io.say("That guess is definitely not true.");
 				} else {
-					io.say("There is a %.4f probability of that guess being true.", 
+					io.say("There is a %.4f probability of that guess being true.",
 							prob);
 				}
-			} catch (IllegalArgumentException e){
+			} catch (IllegalArgumentException e) {
 				io.say("I can't understand that. Try again.");
 			}
 		}
@@ -65,10 +66,13 @@ public class StatsMode {
 		io.say("=============================");
 	}
 
-	public static double computeProbability(Guess guess, int diceInPlay, int[] diceInHand) {
+	public static double computeProbability(Guess guess, int diceInPlay,
+			int[] diceInHand) {
 		final int number = guess.number;
-		final int populationSize = diceInPlay - diceInHand.length; // Number of unknown dice
-		final int quantity = guess.quantity - getCountOfNumber(diceInHand, number);
+		final int populationSize = diceInPlay - diceInHand.length;
+		// Number of unknown dice ^
+		final int quantity = guess.quantity
+				- getCountOfNumber(diceInHand, number);
 		if (quantity <= 0) {
 			return 1.0; // Player has more than the number guessed.
 		} else if (quantity > populationSize) {
@@ -82,18 +86,20 @@ public class StatsMode {
 		}
 		return prob;
 	}
-	
+
 	private static double p(int numSuccesses, int numTrials, double probSuccess) {
 		int numFailures = numTrials - numSuccesses;
 		double probFailure = 1 - probSuccess;
-		
+
 		double x = 1;
 		for (double i = numTrials, j = numSuccesses, k = numFailures; i > 1; i--, j--, k--) {
 			x *= i;
-			if (j > 1) x /= j;
-			if (k > 1) x /= k;
+			if (j > 1)
+				x /= j;
+			if (k > 1)
+				x /= k;
 		}
-		
+
 		double prob = x * Math.pow(probSuccess, numSuccesses)
 				* Math.pow(probFailure, numFailures);
 		return prob;
@@ -102,7 +108,8 @@ public class StatsMode {
 	public static int getCountOfNumber(int[] dice, int number) {
 		int count = 0;
 		for (int val : dice) {
-			if (val == number) count++;
+			if (val == number)
+				count++;
 		}
 		return count;
 	}
@@ -111,8 +118,16 @@ public class StatsMode {
 		return getNumberWithHighestCount(dice, 1);
 	}
 
+	/**
+	 * Returns 0 if <code>dice</code> does not contain any numbers higher than
+	 * <code>minNumber</code>
+	 * 
+	 * @param dice
+	 * @param minNumber
+	 * @return
+	 */
 	public static int getNumberWithHighestCount(int[] dice, int minNumber) {
-		int number = minNumber, count = 0;
+		int number = 0, count = 0;
 		for (int n : dice) {
 			if (n >= minNumber) {
 				int newCount = getCountOfNumber(dice, n);
