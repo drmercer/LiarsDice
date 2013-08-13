@@ -108,14 +108,18 @@ public class StatsMode {
 	}
 
 	public static int getNumberWithHighestCount(int[] dice) {
-		int number = 0, count = 0;
+		return getNumberWithHighestCount(dice, 1);
+	}
+
+	public static int getNumberWithHighestCount(int[] dice, int minNumber) {
+		int number = minNumber, count = 0;
 		for (int n : dice) {
-			int newCount = getCountOfNumber(dice, n);
-			if (newCount > count) {
-				number = n;
-				count = newCount;
-			} else if (newCount == count && n < number) {
-				number = n;
+			if (n >= minNumber) {
+				int newCount = getCountOfNumber(dice, n);
+				if (newCount > count) {
+					number = n;
+					count = newCount;
+				}
 			}
 		}
 		return number;

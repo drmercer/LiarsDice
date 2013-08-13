@@ -16,21 +16,40 @@
 package com.themercerbros.liarsdice.desktop.player;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Random;
 
 import com.themercerbros.liarsdice.desktop.Call;
 import com.themercerbros.liarsdice.desktop.Game;
 import com.themercerbros.liarsdice.desktop.Guess;
 import com.themercerbros.liarsdice.desktop.StatsMode;
+import com.themercerbros.liarsdice.desktop.io.IO;
 
 public class ComputerPlayer extends Player {
 	public static boolean thinkOutLoud = false;
 
 	private static final Random rand = new SecureRandom();
-	private final double alpha = rand.nextDouble() * 0.5 + 0.1;
+	private final double alpha = rand.nextDouble() * 0.5 + 0.1; // range [.1, .6]
 	private final double gutsiness = rand.nextDouble();
 
 	private final String name;
+	
+	public static void main(String[] args) {
+		IO io = new IO();
+		
+		ComputerPlayer cp = new ComputerPlayer(5);
+		cp.rollDice();
+		io.say(Arrays.toString(cp.getDiceRolls()));
+		
+		do {
+			Guess g = Guess.fromHumanInput(io.ask("please guess >> "));
+			try {
+				io.say(cp.takeTurn(g, 10).toHumanString());
+			} catch (Call e) {
+				io.say("Call");
+			}
+		} while (true);
+	}
 	
 	public ComputerPlayer(int numOfDice) {
 		super(numOfDice);
@@ -47,11 +66,11 @@ public class ComputerPlayer extends Player {
 
 	@Override
 	public Guess takeTurn(Guess last, int numOfDiceInPlay) throws Call {
-		try {
-			Thread.sleep(3500);
-		} catch (InterruptedException e) {
-			// Do nothing.
-		}
+//		try {
+//			Thread.sleep(3500);
+//		} catch (InterruptedException e) {
+//			// Do nothing.
+//		}
 
 		int[] diceRolls = getDiceRolls();
 		if (last == null) { // First guess in round
@@ -82,24 +101,48 @@ public class ComputerPlayer extends Player {
 			
 		} else { // Continuing round
 			double lastGuessProb = StatsMode.computeProbability(last, numOfDiceInPlay, diceRolls);
-			double r1 = rand.nextDouble() * .5 - .4;
+			double r1 = rand.nextDouble() * .2 - .1; // range [-.1, .1]
 			if ((rand.nextDouble() > .75 || last.quantity > 1) && (lastGuessProb + r1) < alpha) {
 				think("Calling, because (%.3f%+.3f) < %.3f", lastGuessProb, r1, alpha);
 				throw new Call();
 			}
+
+			if (last.quantity >= numOfDiceInPlay) {
+				think("Calling, because they guessed all the dice");
+				throw new Call();
+			}
+
 			int number, quantity;
-			if (last.quantity > 1.5 * (rand.nextDouble() + .5) * alpha * numOfDiceInPlay
-					&& last.number < Game.NUM_OF_SIDES) {
-				number = last.number + 1;
-				quantity = last.quantity;
-			} else if (last.quantity < numOfDiceInPlay) {
+			int count = StatsMode.getCountOfNumber(diceRolls, last.number);
+			int claimedCount = getClaimedCount(count);
+			if (claimedCount > 0) {
+				number = last.number;
+				quantity = last.quantity + claimedCount;
+
+			} else if (last.number < Game.NUM_OF_SIDES) {
+				number = StatsMode.getNumberWithHighestCount(diceRolls, last.number + 1);
+				quantity = Math.max(StatsMode.getCountOfNumber(diceRolls, number), last.quantity);
+
+			} else { // Nowhere to go but up
 				quantity = last.quantity + 1;
 				number = StatsMode.getNumberWithHighestCount(diceRolls);
-			} else {
-				throw new Call();
+				if (count >= StatsMode.getCountOfNumber(diceRolls, number)) {
+					number = last.number;
+				}
 			}
 			think("Guessing %d %ds", quantity, number);
 			return new Guess(quantity, number);
+		}
+	}
+
+	private int getClaimedCount(int count) {
+		double r = (rand.nextDouble() * 2 - 1) * gutsiness; // range [-1, 1]
+		if (r < -.1) {
+			return (int) (count * (-r));
+		} else if (r > .4) {
+			return count + 1;
+		} else {
+			return count;
 		}
 	}
 	
