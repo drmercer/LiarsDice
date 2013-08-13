@@ -89,13 +89,14 @@ public class HumanPlayer extends Player {
 
 			} else if (input.equalsIgnoreCase("sound on")) {
 				// Enable sound
-				Main.allowNoise = true;
+				Main.allowSounds = true;
+				Main.beep(1);
 				io.say("Will play sounds.");
 				continue;
 
 			} else if (input.equalsIgnoreCase("sound off")) {
 				// Disable sound
-				Main.allowNoise = false;
+				Main.allowSounds = false;
 				io.say("Will not play sounds.");
 				continue;
 

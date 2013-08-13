@@ -27,7 +27,7 @@ public class Main {
 	private static final String USAGE = 
 			"USAGE: [[ --port <port-number> ] [ --dice-per-player <num-of-dice> ] | --join <ip-address> <port-number> ]\n" +
 			"For more help, see the README at https://github.com/drmercer/LiarsDice";
-	public static boolean allowNoise = true;
+	public static boolean allowSounds = true;
 
 	/**
 	 * @param args
@@ -74,7 +74,7 @@ public class Main {
 					port = Integer.parseInt(args[i + 1]);
 					i += 1;
 
-				} else if (arg.equals("--join")) {
+				} else if (arg.equalsIgnoreCase("--join")) {
 					join = true;
 					if (args.length > i + 2) {
 						if (args[i + 1].matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")
@@ -84,7 +84,7 @@ public class Main {
 							i += 2;
 						}
 					}
-				} else if (arg.equals("--dice-per-player")) {
+				} else if (arg.equalsIgnoreCase("--dice-per-player")) {
 					if (args.length <= i + 1) {
 						throw new IllegalArgumentException();
 					}
@@ -96,6 +96,8 @@ public class Main {
 						throw new IllegalArgumentException(e);
 					}
 					i += 1;
+				} else if (arg.equalsIgnoreCase("--no-sounds")) {
+					allowSounds = false;
 				} else {
 					if (args.length <= i + 1) {
 						argsList.add(arg);
@@ -143,7 +145,7 @@ public class Main {
 	}
 
 	public static void beep(int numOfTimes) {
-		if (allowNoise) {
+		if (allowSounds) {
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < numOfTimes; i++) {
 				sb.append('\007');
@@ -153,7 +155,7 @@ public class Main {
 	}
 
 	public static void buzz() {
-		if (allowNoise) {
+		if (allowSounds) {
 			Toolkit.getDefaultToolkit().beep();
 		}
 	}
