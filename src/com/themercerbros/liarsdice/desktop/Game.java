@@ -88,12 +88,14 @@ public class Game implements Broadcaster {
 				server = null;
 			}
 			if (server != null) {
+				boolean retry;
 				do {
+					retry = false;
 					RemotePlayer remote;
 					try {
 						remote = new RemotePlayer(dicePerPlayer, server, human.getName());
 					} catch (IOException e) {
-						boolean retry = io.askBoolean("Connection error. Retry?");
+						retry = io.askBoolean("Connection error. Retry?");
 						if (retry) {
 							continue;
 						} else {
@@ -103,7 +105,7 @@ public class Game implements Broadcaster {
 					io.say(remote.getName() + " joined the game.");
 					players.add(remote);
 					listeningPlayers.add(remote);
-				} while (io.askBoolean("Add another remote player?"));
+				} while (retry || io.askBoolean("Add another remote player?"));
 			}
 		} else {
 			server = null;

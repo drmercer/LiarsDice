@@ -131,6 +131,8 @@ public class Main {
 				if (!io.askBoolean("Join another game? :)")) {
 					break;
 				}
+				address = c.getAddress();
+				port = c.getPort();
 				if (!io.askBoolean("Join the same address and port?")) {
 					address = io.ask("What IP address?");
 					port = io.askForInt("  and what port?", 1, Integer.MAX_VALUE);

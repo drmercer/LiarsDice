@@ -34,13 +34,17 @@ import com.themercerbros.liarsdice.desktop.player.RemotePlayer;
 public class Client {
 	private final IO io = new IO();
 	private final Pattern msgPattern = Pattern.compile("\"(.*)\"");
-	private final Pattern eventPattern = Pattern.compile(RemotePlayer.EVENT_REGEX);
-	
+	private final Pattern eventPattern = Pattern
+			.compile(RemotePlayer.EVENT_REGEX);
+
+	private final String address;
+	private final int port;
+
 	private Socket conn;
 	private BufferedReader in;
 	private PrintWriter out;
 	private ClientPlayer player;
-	
+
 	public Client(String address, int port, HashMap<String, String> vars) {
 		boolean retry = false;
 		do {
@@ -48,18 +52,21 @@ public class Client {
 				address = io.ask("Connect to what IP address?");
 				port = io.askForInt("  and what port?", 1, Integer.MAX_VALUE);
 			}
-			
+
 			retry = false;
 			try {
 				io.say("Connecting to " + address + " on port " + port + "...");
 				conn = new Socket(address, port);
-				in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+				in = new BufferedReader(new InputStreamReader(
+						conn.getInputStream()));
 				out = new PrintWriter(conn.getOutputStream());
 				io.say("Connected.");
 
 			} catch (UnknownHostException e) {
 				io.say("Error. Unknown host " + address);
 				io.say(e.getMessage());
+				// Don't need to close stuff, because socket didn't finish
+				// constructing
 				System.exit(-1);
 
 			} catch (IOException e) {
@@ -80,12 +87,13 @@ public class Client {
 				if (out != null) {
 					out.close();
 				}
-				
+
 				String msg;
 				if (e.getMessage().contains("timed out")) {
 					msg = "Connection attempt timed out. Try again?";
 				} else {
-					msg = "Connection error: \"" + e.getMessage() + "\". Try again?";
+					msg = "Connection error: \"" + e.getMessage()
+							+ "\". Try again?";
 					address = null;
 				}
 				retry = io.askBoolean(msg);
@@ -94,7 +102,10 @@ public class Client {
 				}
 			}
 		} while (retry);
-		
+
+		this.address = address;
+		this.port = port;
+
 		String hostPlayerName;
 		int numOfDice;
 		try {
@@ -107,21 +118,23 @@ public class Client {
 			e.printStackTrace();
 			return;
 		}
-		
+
 		String name = vars.get("--name");
 		if (name == null) {
 			player = new ClientPlayer(numOfDice);
 		} else {
-			player = new ClientPlayer(numOfDice, name);;
+			player = new ClientPlayer(numOfDice, name);
+			;
 		}
 		out.println(player.name);
 		out.flush();
-		
-		io.say("You have joined " + hostPlayerName + "'s game. Each player starts with " + numOfDice + " dice.");
+
+		io.say("You have joined " + hostPlayerName
+				+ "'s game. Each player starts with " + numOfDice + " dice.");
 		io.say("Waiting for the game to start...");
 	}
-	
-	public void run()  {
+
+	public void run() {
 		while (!conn.isClosed()) {
 			String input;
 			try {
@@ -130,7 +143,7 @@ public class Client {
 				io.say("Connection down. Exiting.");
 				break;
 			}
-			
+
 			if (input == null) {
 				break;
 			}
@@ -143,7 +156,8 @@ public class Client {
 				Pattern p = Pattern.compile("\\d+");
 				Matcher m = p.matcher(input);
 				int count = 0;
-				while (m.find()) count++;
+				while (m.find())
+					count++;
 				int[] dice = new int[count];
 				m.reset();
 				for (int i = 0; i < count; i++) {
@@ -151,7 +165,7 @@ public class Client {
 					dice[i] = Integer.parseInt(m.group());
 				}
 				player.setDiceRolls(dice);
-				
+
 			} else if (input.matches(RemotePlayer.TAKE_TURN_REGEX)) {
 				Guess last = Guess.fromString(input);
 				Pattern p = Pattern.compile(RemotePlayer.TAKE_TURN_REGEX);
@@ -205,6 +219,14 @@ public class Client {
 		} catch (IOException e) {
 			// Nothing we can do
 		}
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public int getPort() {
+		return port;
 	}
 
 }
